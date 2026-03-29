@@ -2,23 +2,7 @@
 
 A hands-on AWS networking project demonstrating the setup and configuration of a Virtual Private Cloud (VPC) with multi-AZ subnets, a NAT Gateway, Security Groups, and Network Access Control Lists (NACLs).
 
----
 
-## Table of Contents
-
-1. [Architecture Overview](#architecture-overview)
-2. [VPC and Subnet Configuration](#vpc-and-subnet-configuration)
-3. [Internet Gateway](#internet-gateway)
-4. [Route Tables](#route-tables)
-5. [NAT Gateway](#nat-gateway)
-6. [Security Group](#security-group)
-7. [Network ACL (NACL)](#network-acl-nacl)
-8. [Testing the NAT Gateway](#testing-the-nat-gateway)
-9. [Key Concepts](#key-concepts)
-10. [Repository Structure](#repository-structure)
-11. [Screenshots](#screenshots)
-
----
 
 ## Architecture Overview
 
@@ -82,7 +66,7 @@ Subnets are spread across two AZs to support high availability. Each subnet prov
 
 Both public subnets have **Auto-assign Public IPv4** enabled so instances launched in them receive a public IP automatically.
 
-Configuration reference: [`vpc/vpc-config.json`](vpc/vpc-config.json)
+
 
 ---
 
@@ -138,7 +122,7 @@ A **NAT Gateway** allows instances in private subnets to reach the internet (for
 
 **Important:** The NAT Gateway must be placed in a **public subnet** and is assigned an **Elastic IP (EIP)** — a static public IP address. Private subnet instances appear to the internet as if their traffic originates from this EIP.
 
-Setup notes: [`nat/nat-setup.md`](nat/nat-setup.md)
+
 
 ---
 
@@ -167,7 +151,7 @@ Security Groups act as a virtual firewall at the **instance level**. They are **
 
 SSH access is restricted to a specific IP address (`/32`) to prevent unauthorised access.
 
-Configuration reference: [`security/security-group.json`](security/security-group.json)
+
 
 ---
 
@@ -205,97 +189,6 @@ Associated with all four subnets.
 
 Rules are evaluated in **ascending order by rule number**. The first matching rule wins; the default `*` DENY catches everything else.
 
-Configuration reference: [`security/nacl.json`](security/nacl.json)
 
----
 
-## Testing the NAT Gateway
 
-To confirm that private subnet instances can reach the internet through the NAT Gateway:
-
-**1. Launch a Bastion Host** in `public-subnet-1` with a public IP.
-
-**2. Launch a Private Instance** in `private-subnet-1` with no public IP.
-
-**3. SSH via the Bastion:**
-
-```bash
-# From your local machine
-ssh -A ec2-user@<BASTION_PUBLIC_IP>
-
-# From the bastion, SSH into the private instance
-ssh ec2-user@<PRIVATE_INSTANCE_PRIVATE_IP>
-```
-
-**4. Verify outbound internet access from the private instance:**
-
-```bash
-curl https://checkip.amazonaws.com
-```
-
-**Expected output:** The Elastic IP address assigned to the NAT Gateway — confirming that outbound traffic is routed through it.
-
-```
-3.92.XXX.XXX   ← This should match your NAT Gateway's Elastic IP
-```
-
----
-
-## Key Concepts
-
-| Concept | Description |
-|---|---|
-| **VPC** | A logically isolated virtual network within AWS. All resources are launched inside it. |
-| **Public Subnet** | A subnet with a route to an Internet Gateway. Instances can have public IPs. |
-| **Private Subnet** | A subnet with no direct route to the internet. Instances are only reachable from within the VPC. |
-| **Internet Gateway** | Enables communication between the VPC and the internet for public subnets. |
-| **NAT Gateway** | Allows private subnet instances to initiate outbound internet connections without being reachable inbound. |
-| **Security Group** | Stateful, instance-level firewall. Return traffic is automatically allowed. |
-| **NACL** | Stateless, subnet-level firewall. Both directions must be explicitly defined, including ephemeral ports. |
-| **Elastic IP** | A static public IPv4 address assigned to the NAT Gateway. |
-| **Availability Zone** | Physically separate data centres within a region. Spreading resources across AZs improves resilience. |
-
----
-
-## Repository Structure
-
-```
-aws-networking/
-├── README.md                  # This file
-├── vpc/
-│   └── vpc-config.json        # VPC, subnet, IGW, and NAT Gateway configuration
-├── security/
-│   ├── security-group.json    # Security Group inbound/outbound rules
-│   └── nacl.json              # NACL inbound/outbound rules
-├── nat/
-│   └── nat-setup.md           # NAT Gateway setup steps and notes
-└── screenshots/
-    ├── vpc-dashboard.png
-    ├── subnets.png
-    ├── route-tables.png
-    ├── nat-gateway.png
-    ├── security-group.png
-    ├── nacl-inbound.png
-    ├── nacl-outbound.png
-    └── nat-test-curl.png
-```
-
----
-
-## Screenshots
-
-All screenshots are located in the [`screenshots/`](screenshots/) folder and include:
-
-- **VPC Dashboard** — `my-vpc` with CIDR `10.0.0.0/16`
-- **Subnets** — All four subnets with their CIDRs and AZs
-- **Route Tables** — Public (IGW route) and private (NAT Gateway route)
-- **NAT Gateway** — Status: Available, with Elastic IP
-- **Security Group** — Inbound and outbound rules
-- **NACL** — Inbound and outbound rules including ephemeral port range
-- **NAT Test** — Terminal output of `curl https://checkip.amazonaws.com` returning the NAT Gateway EIP
-
----
-
-## Author
-
-> Replace with your name, student ID, and course details.
