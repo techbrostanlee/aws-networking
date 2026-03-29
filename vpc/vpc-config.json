@@ -1,0 +1,14 @@
+{
+  "VPC": {
+    "CidrBlock": "10.0.0.0/16",
+    "Name": "my-vpc"
+  },
+  "Subnets": [
+    { "Name": "public-subnet-1",  "CIDR": "10.0.1.0/24", "AZ": "us-east-1a", "Type": "Public" },
+    { "Name": "public-subnet-2",  "CIDR": "10.0.2.0/24", "AZ": "us-east-1b", "Type": "Public" },
+    { "Name": "private-subnet-1", "CIDR": "10.0.3.0/24", "AZ": "us-east-1a", "Type": "Private" },
+    { "Name": "private-subnet-2", "CIDR": "10.0.4.0/24", "AZ": "us-east-1b", "Type": "Private" }
+  ],
+  "InternetGateway": "my-igw",
+  "NATGateway": { "Name": "my-nat-gw", "Subnet": "public-subnet-1" }
+}
